@@ -30,6 +30,7 @@ struct urn_timer {
     int running;
     long long now;
     long long start_time;
+    long long last_step_time;
     long long time;
     long long sum_of_bests;
     long long world_record;

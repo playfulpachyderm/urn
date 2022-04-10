@@ -517,8 +517,9 @@ int urn_timer_create(urn_timer **timer_ptr, urn_game *game) {
 void urn_timer_step(urn_timer *timer, long long now) {
     timer->now = now;
     if (timer->running) {
-        timer->time = timer->now - timer->start_time;
-        long long time = timer->now - timer->start_time;
+        timer->time += timer->now - timer->last_step_time;
+        timer->last_step_time = timer->now;
+        long long time = timer->time;
         if (timer->curr_split < timer->game->split_count) {
             timer->split_times[timer->curr_split] = time;
             // calc delta
@@ -569,7 +570,9 @@ void urn_timer_step(urn_timer *timer, long long now) {
 }
 
 int urn_timer_start(urn_timer *timer) {
+    // Ignore attempts to start if the game is over (current split > total splits)
     if (timer->curr_split < timer->game->split_count) {
+        timer->last_step_time = timer->now;
         if (!timer->start_time) {
             timer->start_time = timer->now + timer->game->start_delay;
             ++*timer->attempt_count;
